@@ -1,4 +1,9 @@
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+let API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+
+// Defensively append /api if missing from environment variables configuration
+if (API_BASE && !API_BASE.endsWith('/api') && !API_BASE.endsWith('/api/')) {
+  API_BASE = API_BASE.replace(/\/$/, '') + '/api';
+}
 
 /**
  * API client utility — wraps fetch with auth token and error handling
