@@ -25,12 +25,16 @@ const allowedOrigins = [
   'http://127.0.0.1:3000',
 ];
 if (process.env.CLIENT_URL) {
-  allowedOrigins.push(process.env.CLIENT_URL.trim());
+  // Normalize: strip any trailing slash
+  const clientUrl = process.env.CLIENT_URL.trim().replace(/\/$/, '');
+  allowedOrigins.push(clientUrl);
 }
 
 app.use(cors({
   origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin)) {
+    // Normalize: strip trailing slash of incoming origin
+    const normalizedOrigin = origin ? origin.trim().replace(/\/$/, '') : '';
+    if (!origin || allowedOrigins.includes(normalizedOrigin)) {
       callback(null, true);
     } else {
       callback(new Error('Not allowed by CORS'));
