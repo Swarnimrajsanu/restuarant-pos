@@ -393,7 +393,7 @@ export default function LoginPage() {
 
         {/* Bottom branding */}
         <p className="mt-6 text-center text-xs text-slate-400 font-medium">
-          RestoPOS v1.0 · Made with ❤️ for cafes & tea stalls
+          Manoj Vaishnav Hotel & Mishthan Bhandar v1.0
         </p>
       </div>
     </div>

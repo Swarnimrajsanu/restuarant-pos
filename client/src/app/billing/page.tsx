@@ -184,6 +184,7 @@ function printBill({
   grandTotal,
   paymentMethod,
   workerName,
+  language,
 }: {
   orderNumber: string;
   items: CartItem[];
@@ -193,16 +194,23 @@ function printBill({
   grandTotal: number;
   paymentMethod: PaymentMethod;
   workerName: string;
+  language: 'en' | 'hi';
 }) {
   const now = new Date();
   const dateStr = now.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
   const timeStr = now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
 
   const paymentLabels: Record<PaymentMethod, string> = {
-    cash: 'Cash',
+    cash: language === 'en' ? 'Cash' : 'नकद',
     upi: 'UPI',
-    card: 'Card',
+    card: language === 'en' ? 'Card' : 'कार्ड',
   };
+
+  const appName = language === 'en' ? 'Manoj Vaishnav Hotel & Mishthan Bhandar' : 'मनोज वैष्णव होटल & मिष्ठान भंडार';
+  const address = language === 'en' 
+    ? 'Gaushala Chowk, Gausala Rd, nearby Hanuman Mandir, Chakmahila, Sitamarhi, Bihar 843302' 
+    : 'गौशाला चौक, गौशाला रोड, हनुमान मंदिर के पास, चकमहिला, सीतामढ़ी, बिहार 843302';
+  const mobile = '9199056693';
 
   const itemsHtml = items
     .map(
@@ -225,29 +233,31 @@ function printBill({
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
-      font-family: 'Inter', monospace;
-      font-size: 12px;
+      font-family: 'Inter', sans-serif;
+      font-size: 11px;
       color: #1e293b;
       background: white;
-      padding: 16px;
+      padding: 12px;
       max-width: 300px;
       margin: 0 auto;
     }
-    .header { text-align: center; border-bottom: 1px dashed #cbd5e1; padding-bottom: 10px; margin-bottom: 10px; }
-    .restaurant-name { font-size: 18px; font-weight: 700; letter-spacing: -0.5px; }
-    .tagline { font-size: 10px; color: #64748b; margin-top: 2px; }
-    .meta { font-size: 10px; color: #64748b; margin-top: 6px; }
+    .header { text-align: center; border-bottom: 1px dashed #cbd5e1; padding-bottom: 8px; margin-bottom: 8px; }
+    .restaurant-name { font-size: 15px; font-weight: 700; letter-spacing: -0.5px; line-height: 1.2; margin-bottom: 3px; }
+    .address { font-size: 10px; color: #64748b; line-height: 1.3; margin: 3px 0; }
+    .mobile { font-size: 10px; color: #475569; font-weight: 600; margin-bottom: 4px; }
+    .tagline { font-size: 10px; color: #64748b; margin-top: 2px; font-style: italic; }
+    .meta { font-size: 10px; color: #64748b; margin-top: 6px; border-top: 1px solid #f1f5f9; padding-top: 4px; text-align: left; }
     .section-label { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: #94a3b8; margin: 10px 0 4px; }
     table { width: 100%; border-collapse: collapse; }
     thead tr { border-bottom: 1px solid #e2e8f0; }
     thead th { font-size: 9px; text-transform: uppercase; letter-spacing: 0.5px; color: #94a3b8; padding: 4px 0; text-align: left; }
     thead th:nth-child(2) { text-align: center; }
     thead th:nth-child(3), thead th:nth-child(4) { text-align: right; }
-    tbody tr td { font-size: 12px; vertical-align: top; }
+    tbody tr td { font-size: 11px; vertical-align: top; }
     .totals { border-top: 1px dashed #cbd5e1; margin-top: 8px; padding-top: 8px; }
-    .total-row { display: flex; justify-content: space-between; margin-bottom: 3px; font-size: 11px; color: #475569; }
-    .grand-total { font-size: 15px; font-weight: 700; color: #1e293b; margin-top: 6px; border-top: 1px solid #1e293b; padding-top: 6px; }
-    .payment-badge { display: inline-block; background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 4px; padding: 2px 8px; font-size: 10px; font-weight: 600; margin-top: 8px; }
+    .total-row { display: flex; justify-content: space-between; margin-bottom: 3px; font-size: 10px; color: #475569; }
+    .grand-total { font-size: 14px; font-weight: 700; color: #1e293b; margin-top: 6px; border-top: 1px solid #1e293b; padding-top: 6px; }
+    .payment-badge { display: inline-block; background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 4px; padding: 2px 8px; font-size: 9px; font-weight: 600; margin-top: 8px; }
     .footer { text-align: center; margin-top: 14px; border-top: 1px dashed #cbd5e1; padding-top: 10px; font-size: 10px; color: #94a3b8; }
     @media print {
       body { padding: 0; }
@@ -257,38 +267,40 @@ function printBill({
 </head>
 <body>
   <div class="header">
-    <div class="restaurant-name">🍽 RestoPOS</div>
-    <div class="tagline">Thank you for your visit!</div>
+    <div class="restaurant-name">🍽 ${appName}</div>
+    <div class="address">${address}</div>
+    <div class="mobile">${language === 'en' ? 'Mob:' : 'मोबाइल:'} ${mobile}</div>
+    <div class="tagline">${language === 'en' ? 'Thank you for your visit!' : 'आपकी यात्रा के लिए धन्यवाद!'}</div>
     <div class="meta">
-      <div>Order: <strong>${orderNumber}</strong></div>
+      <div>${language === 'en' ? 'Order' : 'ऑर्डर'}: <strong>${orderNumber}</strong></div>
       <div>${dateStr} &nbsp;|&nbsp; ${timeStr}</div>
-      <div>Staff: ${workerName}</div>
+      <div>${language === 'en' ? 'Staff' : 'कर्मचारी'}: ${workerName}</div>
     </div>
   </div>
 
-  <div class="section-label">Items</div>
+  <div class="section-label">${language === 'en' ? 'Items' : 'सामग्री सूची'}</div>
   <table>
     <thead>
       <tr>
-        <th>Item</th>
-        <th>Qty</th>
-        <th>Price</th>
-        <th>Total</th>
+        <th>${language === 'en' ? 'Item' : 'सामग्री'}</th>
+        <th>${language === 'en' ? 'Qty' : 'मात्रा'}</th>
+        <th>${language === 'en' ? 'Price' : 'दर'}</th>
+        <th>${language === 'en' ? 'Total' : 'कुल'}</th>
       </tr>
     </thead>
     <tbody>${itemsHtml}</tbody>
   </table>
 
   <div class="totals">
-    <div class="total-row"><span>Subtotal</span><span>&#8377;${cartTotal.toLocaleString('en-IN')}</span></div>
-    ${extraChargeValue > 0 ? `<div class="total-row"><span>${extraChargeLabel || 'Extra'}</span><span>+ &#8377;${extraChargeValue.toLocaleString('en-IN')}</span></div>` : ''}
-    <div class="total-row grand-total"><span>TOTAL</span><span>&#8377;${grandTotal.toLocaleString('en-IN')}</span></div>
-    <div><span class="payment-badge">Paid via ${paymentLabels[paymentMethod]}</span></div>
+    <div class="total-row"><span>${language === 'en' ? 'Subtotal' : 'कुल योग'}</span><span>&#8377;${cartTotal.toLocaleString('en-IN')}</span></div>
+    ${extraChargeValue > 0 ? `<div class="total-row"><span>${extraChargeLabel || (language === 'en' ? 'Extra' : 'अन्य शुल्क')}</span><span>+ &#8377;${extraChargeValue.toLocaleString('en-IN')}</span></div>` : ''}
+    <div class="total-row grand-total"><span>${language === 'en' ? 'TOTAL' : 'कुल देय'}</span><span>&#8377;${grandTotal.toLocaleString('en-IN')}</span></div>
+    <div><span class="payment-badge">${language === 'en' ? 'Paid via' : 'भुगतान माध्यम'}: ${paymentLabels[paymentMethod]}</span></div>
   </div>
 
   <div class="footer">
-    <p>Visit us again! 😊</p>
-    <p style="margin-top:4px">Powered by RestoPOS</p>
+    <p>${language === 'en' ? 'Visit us again! 😊' : 'फिर पधारें! 😊'}</p>
+    <p style="margin-top:4px">${language === 'en' ? 'Powered by' : 'द्वारा संचालित'} ${appName}</p>
   </div>
 
   <script>
@@ -355,7 +367,7 @@ function SuccessOverlay({
 // ─── Main Billing Page ───────────────────────────────────────────────
 export default function BillingPage() {
   const { user } = useAuth();
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
 
   // Products state
   const [products, setProducts] = useState<Product[]>([]);
@@ -504,6 +516,7 @@ export default function BillingPage() {
         grandTotal,
         paymentMethod,
         workerName: user?.name || 'Staff',
+        language,
       });
 
       // Show success

@@ -12,7 +12,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: 'RestoPOS — Restaurant Payment Management',
+  title: 'Manoj Vaishnav Hotel & Mishthan Bhandar',
   description:
     'A modern point-of-sale system for restaurant billing, order management, and payment tracking. Built for speed and simplicity.',
   keywords: ['restaurant', 'POS', 'billing', 'order management', 'payments'],

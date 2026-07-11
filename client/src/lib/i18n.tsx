@@ -7,7 +7,9 @@ type Language = 'en' | 'hi';
 const translations = {
   en: {
     // Auth
-    appName: 'RestoPOS',
+    appName: 'Manoj Vaishnav Hotel & Mishthan Bhandar',
+    restaurantAddress: 'Gaushala Chowk, Gausala Rd, nearby Hanuman Mandir, Chakmahila, Sitamarhi, Bihar 843302',
+    restaurantMobile: '9199056693',
     signInTitle: 'Sign in to your account',
     emailLabel: 'Email / Worker ID',
     passwordLabel: 'Password',
@@ -188,7 +190,9 @@ const translations = {
   },
   hi: {
     // Auth
-    appName: 'रेस्टोपीओएस',
+    appName: 'मनोज वैष्णव होटल & मिष्ठान भंडार',
+    restaurantAddress: 'गौशाला चौक, गौशाला रोड, हनुमान मंदिर के पास, चकमहिला, सीतामढ़ी, बिहार 843302',
+    restaurantMobile: '9199056693',
     signInTitle: 'अपने खाते में लॉगिन करें',
     emailLabel: 'ईमेल या कर्मचारी आईडी',
     passwordLabel: 'पासवर्ड',
