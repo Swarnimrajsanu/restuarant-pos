@@ -20,6 +20,7 @@ import {
   Loader2,
   Package,
   Printer,
+  Pencil,
 } from 'lucide-react';
 
 // Category filter options
@@ -386,6 +387,10 @@ export default function BillingPage() {
   // Store last placed order data for printing
   const [lastOrderPrintData, setLastOrderPrintData] = useState<Parameters<typeof printBill>[0] | null>(null);
 
+  // Custom total override state
+  const [customTotal, setCustomTotal] = useState<string>('');
+  const [isEditingTotal, setIsEditingTotal] = useState<boolean>(false);
+
   // Extra / Miscellaneous charges state
   const [extraCharge, setExtraCharge] = useState<string>('');
   const [extraChargeLabel, setExtraChargeLabel] = useState<string>('');
@@ -483,6 +488,15 @@ export default function BillingPage() {
     return cartTotal + extraChargeValue;
   }, [cartTotal, extraChargeValue]);
 
+  // Final total after custom override if present
+  const finalTotal = useMemo(() => {
+    const parsed = parseFloat(customTotal);
+    if (customTotal.trim() !== '' && !isNaN(parsed) && parsed >= 0) {
+      return parsed;
+    }
+    return grandTotal;
+  }, [grandTotal, customTotal]);
+
   // ─── Place Order ─────────────────────────────────────────────────
   const placeOrder = async () => {
     if (cart.length === 0 || placing) return;
@@ -498,7 +512,7 @@ export default function BillingPage() {
 
       const result = await api.createOrder({
         items: orderItems,
-        total: grandTotal,
+        total: finalTotal,
         paymentMethod,
         extraCharge: extraChargeValue,
         extraChargeLabel: extraChargeLabel.trim() || t('extraCharge'),
@@ -513,7 +527,7 @@ export default function BillingPage() {
         cartTotal,
         extraChargeValue,
         extraChargeLabel: extraChargeLabel.trim() || t('extraCharge'),
-        grandTotal,
+        grandTotal: finalTotal,
         paymentMethod,
         workerName: user?.name || 'Staff',
         language,
@@ -525,6 +539,8 @@ export default function BillingPage() {
       setPaymentMethod('cash');
       setExtraCharge('');
       setExtraChargeLabel('');
+      setCustomTotal('');
+      setIsEditingTotal(false);
       setShowExtraCharge(false);
       setActiveMobileTab('products'); // Reset back to products list on mobile
     } catch (err: any) {
@@ -793,11 +809,74 @@ export default function BillingPage() {
                 </div>
               )}
 
-              <div className="flex items-center justify-between border-t border-slate-100 pt-2">
-                <span className="text-sm font-bold text-slate-900">{t('totalBill')}</span>
-                <span className="text-xl lg:text-2xl font-bold text-slate-900 text-amber-600">
-                  ₹{grandTotal.toLocaleString('en-IN')}
-                </span>
+              <div className="flex flex-col gap-1 border-t border-slate-100 pt-2 animate-in fade-in duration-150">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-sm font-bold text-slate-900">{t('totalBill')}</span>
+                    {customTotal.trim() !== '' && !isNaN(parseFloat(customTotal)) && (
+                      <span className="text-[9px] font-bold bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded-md uppercase tracking-wider">
+                        {language === 'en' ? 'Edited' : 'संपादित'}
+                      </span>
+                    )}
+                  </div>
+                  
+                  {isEditingTotal ? (
+                    <div className="flex items-center gap-1.5">
+                      <input
+                        type="number"
+                        min="0"
+                        step="any"
+                        placeholder={grandTotal.toString()}
+                        value={customTotal}
+                        onChange={(e) => setCustomTotal(e.target.value)}
+                        className="w-20 px-2 py-1 text-right text-xs font-bold rounded-lg border border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20"
+                        autoFocus
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setIsEditingTotal(false)}
+                        className="px-2 py-1 text-[10px] font-bold bg-amber-500 hover:bg-amber-600 text-white rounded-md cursor-pointer transition-colors"
+                      >
+                        {language === 'en' ? 'OK' : 'ठीक'}
+                      </button>
+                      {customTotal !== '' && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setCustomTotal('');
+                            setIsEditingTotal(false);
+                          }}
+                          className="text-[10px] font-bold text-red-500 hover:text-red-700 hover:underline cursor-pointer"
+                        >
+                          {language === 'en' ? 'Reset' : 'रीसेट'}
+                        </button>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-1.5">
+                      {customTotal.trim() !== '' && !isNaN(parseFloat(customTotal)) && (
+                        <span className="text-xs text-slate-400 line-through">
+                          ₹{grandTotal.toLocaleString('en-IN')}
+                        </span>
+                      )}
+                      <span
+                        onClick={() => setIsEditingTotal(true)}
+                        className="text-xl lg:text-2xl font-bold text-amber-600 hover:text-amber-700 transition-colors cursor-pointer hover:underline"
+                        title="Click to edit final price"
+                      >
+                        ₹{finalTotal.toLocaleString('en-IN')}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => setIsEditingTotal(true)}
+                        className="text-slate-400 hover:text-amber-500 transition-colors p-1"
+                        title="Edit price"
+                      >
+                        <Pencil className="size-3.5" />
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
 
               {/* Payment method buttons */}
@@ -883,7 +962,7 @@ export default function BillingPage() {
                   ) : (
                     <>
                       <ShoppingCart className="size-4" />
-                      {t('placeOrder')} — ₹{grandTotal.toLocaleString('en-IN')}
+                      {t('placeOrder')} — ₹{finalTotal.toLocaleString('en-IN')}
                     </>
                   )}
                 </button>
@@ -907,7 +986,7 @@ export default function BillingPage() {
                 <span>{t('viewOrderMobile')}</span>
               </div>
               <span className="flex items-center gap-1 text-sm font-semibold">
-                ₹{grandTotal.toLocaleString('en-IN')}
+                ₹{finalTotal.toLocaleString('en-IN')}
                 <span className="opacity-70 ml-1">→</span>
               </span>
             </button>
